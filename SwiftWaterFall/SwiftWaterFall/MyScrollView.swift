@@ -10,7 +10,9 @@ import Foundation
 import UIKit
 import Kingfisher
 
-let PAGE_SIZE=9 //Image nums
+let PAGE_SIZE=15 //Image nums
+let SPACING_WID:CGFloat=2
+let SPACING_HEIGHT:CGFloat=3
 
 class MyScrollView:UIScrollView ,UIScrollViewDelegate,UIGestureRecognizerDelegate {
     var loadedImageDic:NSMutableDictionary=NSMutableDictionary()
@@ -25,11 +27,9 @@ class MyScrollView:UIScrollView ,UIScrollViewDelegate,UIGestureRecognizerDelegat
     var imgTag:Int=10000 //
     var page:Int=1
     
-    
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
     }
-    
     
     override init(frame: CGRect) {
         super.init(frame:frame)
@@ -74,18 +74,11 @@ class MyScrollView:UIScrollView ,UIScrollViewDelegate,UIGestureRecognizerDelegat
     func imageStartDownloading(imageName:String){
         //Using Kingfisher
         if let cache=ImageCache.defaultCache.retrieveImageInMemoryCacheForKey(imageName){
-            
             let imgView=UIImageView(image: cache)
-            let origin_width=cache.size.width
-            let origin_height=cache.size.height
-            
-            let new_width=frame.size.width/3-5
-            let new_height=(frame.size.width/3*origin_height)/origin_width
-            imgView.frame=CGRect(x: 0, y: 0, width: new_width, height: new_height)
+            imgView.resizeToWidth(frame.size.width/3-SPACING_WID)
             
             self.addImage(imgView, name: imageName)
             self.adjustContentSize(false)
-            
         }
         else {
             let imgView=UIImageView()
@@ -94,13 +87,8 @@ class MyScrollView:UIScrollView ,UIScrollViewDelegate,UIGestureRecognizerDelegat
                                            optionsInfo: nil,
                                            progressBlock: nil,
                                            completionHandler: {(image, error, cacheType,imageURL) -> () in
-                                            let origin_width=imgView.image?.size.width
-                                            let origin_height=imgView.image?.size.height
+                                            imgView.resizeToWidth(self.frame.size.width/3-SPACING_WID)
                                             
-                                            let new_width=self.frame.size.width/3-5
-                                            let new_height=(self.frame.size.width/3*origin_height!)/origin_width!
-                                            
-                                            imgView.frame=CGRect(x: 0, y: 0, width: new_width, height: new_height)
                                             self.addImage(imgView, name: imageName)
                                             self.adjustContentSize(false)
                 })
@@ -123,7 +111,7 @@ class MyScrollView:UIScrollView ,UIScrollViewDelegate,UIGestureRecognizerDelegat
         }
     }
     
-    
+    //Decide which col to add
     func getTheShortColumn()->CGFloat{
         if leftColumnHeight<=midColumnHeight && leftColumnHeight <= rightColumnHeight {
             return leftColumnHeight
@@ -155,7 +143,7 @@ class MyScrollView:UIScrollView ,UIScrollViewDelegate,UIGestureRecognizerDelegat
             leftView.addSubview(imageView)
             
             imageView.frame=CGRect(x: 2, y: leftColumnHeight, width: width, height: height)
-            leftColumnHeight=leftColumnHeight+height+3
+            leftColumnHeight=leftColumnHeight+height+SPACING_HEIGHT
             leftView.frame=CGRect(x: 0, y: 0, width: frame.size.width/3, height: leftColumnHeight)
             
         } else {
@@ -164,14 +152,14 @@ class MyScrollView:UIScrollView ,UIScrollViewDelegate,UIGestureRecognizerDelegat
                 midView.addSubview(imageView)
                 
                 imageView.frame=CGRect(x: 2, y: midColumnHeight, width: width, height: height)
-                midColumnHeight=midColumnHeight+height+3
+                midColumnHeight=midColumnHeight+height+SPACING_HEIGHT
                 midView.frame=CGRect(x: frame.size.width/3, y: 0, width: frame.size.width/3, height: midColumnHeight)
             } else {
                 let rightView=self.viewWithTag(102)! as UIView
                 rightView.addSubview(imageView)
                 
                 imageView.frame=CGRect(x: 2, y: rightColumnHeight, width: width, height: height)
-                rightColumnHeight=rightColumnHeight+height+3
+                rightColumnHeight=rightColumnHeight+height+SPACING_HEIGHT
                 rightView.frame=CGRect(x: 2*frame.size.width/3, y: 0, width: frame.size.width/3, height: rightColumnHeight)
             }
         }
@@ -190,14 +178,8 @@ class MyScrollView:UIScrollView ,UIScrollViewDelegate,UIGestureRecognizerDelegat
                                                        optionsInfo: nil,
                                                        progressBlock: nil,
                                                        completionHandler: {(image, error, cacheType,imageURL) -> () in
-                                                        print("Downloaded & resized \(imageURL!)!")
-                                                        let origin_width=imgView.image?.size.width
-                                                        let origin_height=imgView.image?.size.height
-                                                        
-                                                        let new_width=self.frame.size.width/3-5
-                                                        let new_height=(self.frame.size.width/3*origin_height!)/origin_width!
-                                                        
-                                                        imgView.frame=CGRect(x: 0, y: 0, width: new_width, height: new_height)
+                                                        //print("Downloaded & resized \(imageURL!)!")
+                                                        imgView.resizeToWidth(self.frame.size.width/3-SPACING_WID)
                                                         
                             })
                         }
@@ -216,7 +198,6 @@ class MyScrollView:UIScrollView ,UIScrollViewDelegate,UIGestureRecognizerDelegat
         tapRecognizer.delegate=self
         view.userInteractionEnabled=true
         view.addGestureRecognizer(tapRecognizer)
-        
     }
     
     func scrollViewDidScroll(scrollView: UIScrollView) {
